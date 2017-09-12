@@ -1,0 +1,8 @@
+C:\Users\Nathan\Dev\Imperial\IMU\Avatar\NUClass\bin\Debug\NUClass.dll.config
+C:\Users\Nathan\Dev\Imperial\IMU\Avatar\NUClass\bin\Debug\NUClass.dll
+C:\Users\Nathan\Dev\Imperial\IMU\Avatar\NUClass\bin\Debug\NUClass.pdb
+C:\Users\Nathan\Dev\Imperial\IMU\Avatar\NUClass\bin\Debug\InTheHand.Net.Personal.dll
+C:\Users\Nathan\Dev\Imperial\IMU\Avatar\NUClass\bin\Debug\InTheHand.Net.Personal.xml
+C:\Users\Nathan\Dev\Imperial\IMU\Avatar\NUClass\obj\Debug\NUClass.dll
+C:\Users\Nathan\Dev\Imperial\IMU\Avatar\NUClass\obj\Debug\NUClass.pdb
+C:\Users\Nathan\Dev\Imperial\IMU\Avatar\NUClass\obj\Debug\NUClass.csprojResolveAssemblyReference.cache

@@ -1,0 +1,895 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NUClass</name>
+    </assembly>
+    <members>
+        <member name="T:NUClass.BTManager">
+            <summary>
+            Handles the low-level connection to the IMU device through Bluetooth.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.client">
+            <summary>
+            32Feet library client to handle Bluetooth connection.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.port">
+            <summary>
+            Port address used to handle Bluetooth connection.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.connection_details">
+            <summary>
+            Debug report from connection attempt to the specified IMU device.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.stream">
+            <summary>
+            Data stream acquired from the IMU device.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.bt_address">
+            <summary>
+            32Feet library representation of the IMU device's MAC address.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.end_point">
+            <summary>
+            32Feet library representation of the IMU device.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.packet_size">
+            <summary>
+            Desired data packet size. [0:2] - start sequence, [3] - packet size, [4] - id, [5:22] - data, [23] - packet size.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.IMU_connection">
+            <summary>
+            Parent IMUConnection instance.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.debug_connection_reports">
+            <summary>
+            Boolean flagging whether to produces debug report for this IMU device.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.sequence_start">
+            <summary>
+            Integers used to represent start of a new packet from the data stream.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.get_data">
+            <summary>
+            Thread instance which handles the asynchronous streaming of IMU data.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.stream_open">
+            <summary>
+            Whether the stream should currently being read.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.safe_to_terminate">
+            <summary>
+            Whether the streaming thread can be safely aborted.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.attempt_number">
+            <summary>
+            Current connection attempt being made.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.max_attempts">
+            <summary>
+            Maximu connection attempts that can be made.
+            </summary>
+        </member>
+        <member name="F:NUClass.BTManager.connection_info">
+            <summary>
+            Whether or not to collect IMU firmware information.
+            </summary>
+        </member>
+        <member name="P:NUClass.BTManager.initial_connection">
+            <summary>
+            Is this the first attempt?
+            </summary>
+        </member>
+        <member name="P:NUClass.BTManager.connection_established">
+            <summary>
+            Has a connection been made to the Bluetooth end point?
+            </summary>
+        </member>
+        <member name="P:NUClass.BTManager.stream_established">
+            <summary>
+            Has a stream instance been pulled from the Bluetooth connection?
+            </summary>
+        </member>
+        <member name="P:NUClass.BTManager.connection_live">
+            <summary>
+            Have the appropriate bytes been collected from the stream instance?
+            </summary>
+        </member>
+        <member name="M:NUClass.BTManager.#ctor(NUClass.IMUConnection,InTheHand.Net.BluetoothAddress,System.Boolean,System.Boolean)">
+            <summary>
+            Constructs the class and assigns global variables from the passed parameters, then sets up
+            basic connection variables.
+            </summary>
+            <param name="_IMU_connection"> Parent IMUConnection instance.</param>
+            <param name="_bt_address"> Bluetooth address for IMU device.</param>
+            <param name="_debug_connection_reports"> Produce debug report?</param>
+            <param name="_connection_info"> Get IMU firmware information? </param>
+        </member>
+        <member name="M:NUClass.BTManager.establish_bluetooth_connection">
+            <summary>
+            Gets the port address and establishs the 32Feet end point for making a connection
+            to the IMU device over Bluetooth.
+            </summary>
+        </member>
+        <member name="M:NUClass.BTManager.connect">
+            <summary>
+            Attempts to connection over Bluetooth to the IMU device and establish a data stream from it. Provides several attempts
+            at a connection and gets the IMU firmware number if required.
+            </summary>
+            <returns> T - Connection success, F - Connection failure.</returns>
+        </member>
+        <member name="M:NUClass.BTManager.start_streaming">
+            <summary>
+            Creates the thread to asynchronously handle the data stream and starts it.
+            </summary>
+        </member>
+        <member name="M:NUClass.BTManager.stream_data">
+            <summary>
+            Function used to handle the data stream. Send the initiate command, waits for data to become available and then compiles
+            the stream into correct data packets. Continues while 'stream_open' is true, throws a a disconnect event if no data read
+            for two seconds.
+            </summary>
+        </member>
+        <member name="M:NUClass.BTManager.send_data(System.Byte)">
+            <summary>
+            Writes the passed byte to the IMU device.
+            </summary>
+            <param name="new_data">Byte to send to IMU device.</param>
+        </member>
+        <member name="M:NUClass.BTManager.send_data(System.String)">
+            <summary>
+            Send a string to the IMU device, breaking it down into the corresponding bytes.
+            </summary>
+            <param name="new_data">String message to be converted into bytes.</param>
+        </member>
+        <member name="M:NUClass.BTManager.db_report(System.String)">
+            <summary>
+            Console debugging output if toggled on.
+            </summary>
+            <param name="message"> Debug message.</param>
+        </member>
+        <member name="M:NUClass.BTManager.establish_device_details(System.String)">
+            <summary>
+            Acquires the Bluetooth version number being used to connect to the Bluetooth device.
+            </summary>
+            <param name="IMU_device_name"> Formatted string name of the IMU device.</param>
+            <returns> String representation of the Bluetooth version number.</returns>
+        </member>
+        <member name="T:NUClass.Calibration">
+            <summary>
+            Handles the data storage when using the Madgwick algorithm as well as providing functionality for 
+            reading / writing configuration files.
+            </summary>
+        </member>
+        <member name="F:NUClass.Calibration.calibrated">
+            <summary>
+            Is the IMU device currently calibrated?
+            </summary>
+        </member>
+        <member name="F:NUClass.Calibration.countdown">
+            <summary>
+            variable used to keep track of the interations performed in the calibration stage.
+            </summary>
+        </member>
+        <member name="F:NUClass.Calibration.axes">
+            <summary>
+            Axes used for the magnetometer,accelerometer and gyroscope.
+            </summary>
+        </member>
+        <member name="F:NUClass.Calibration.variables">
+            <summary>
+            Master dictionary of the values stored from the IMU device.
+            </summary>
+        </member>
+        <member name="F:NUClass.Calibration.IMU_number">
+            <summary>
+            Number associated with the IMU device.
+            </summary>
+        </member>
+        <member name="F:NUClass.Calibration.path">
+            <summary>
+            Path to the calibration memory file.
+            </summary>
+        </member>
+        <member name="F:NUClass.Calibration.IMU_connection">
+            <summary>
+            Parent IMUConnection instance.
+            </summary>
+        </member>
+        <member name="P:NUClass.Calibration.valid_config_file">
+            <summary>
+            Whether the configuration file is valid.
+            </summary>
+        </member>
+        <member name="M:NUClass.Calibration.#ctor(System.String,NUClass.IMUConnection)">
+            <summary>
+            Constructs the Calibration class, passing the associated IMU number and parent IMUConnection instance.
+            Looks for the associated calibration file and attempts to read it if it exists, else creates a new one.
+            </summary>
+            <param name="_IMU_number">IMU device number.</param>
+            <param name="_IMU_connection"> Parent IMU connection instance.</param>
+        </member>
+        <member name="M:NUClass.Calibration.get_variables_array">
+            <summary>
+            Formats the master dictionary to a string array to be printed to the calibration file.
+            </summary>
+            <returns>String array represnting IMU values.</returns>
+        </member>
+        <member name="M:NUClass.Calibration.get(System.String,System.String)">
+            <summary>
+            Gets the value from the master dictionary.
+            </summary>
+            <param name="variable"> GYRO / ACCEL / MAG </param>
+            <param name="axis"> X / Y / Z</param>
+            <returns>Integer value from passed keys.</returns>
+        </member>
+        <member name="M:NUClass.Calibration.set(System.String,System.String,System.Int32)">
+            <summary>
+            Sets the value in the master dictionary associated with the passed keys.
+            </summary>
+            <param name="variable"> GYRO / ACCEL / MAG </param>
+            <param name="axis"> X / Y / Z</param>
+            <param name="value"> Integer value to set in the master dictionary.</param>
+        </member>
+        <member name="M:NUClass.Calibration.adjust(System.String,System.String,System.Int32)">
+            <summary>
+            Increments the value in the master dictionary associated with the passed keys.
+            </summary>
+            <param name="variable"> GYRO / ACCEL / MAG </param>
+            <param name="axis"> X / Y / Z</param>
+            <param name="value"> Integer value to increment the value in the master dictionary by.</param>
+        </member>
+        <member name="M:NUClass.Calibration.is_calibrated">
+            <summary>
+            Is the IMU device calibrated?
+            </summary>
+            <returns> Is calibrated?</returns>
+        </member>
+        <member name="M:NUClass.Calibration.set_calibrated(System.Boolean)">
+            <summary>
+            Sets whether the IMU device is calibrated.
+            </summary>
+            <param name="calibrated">T - calibrated, F - not calibrated.</param>
+        </member>
+        <member name="M:NUClass.Calibration.populate_variables">
+            <summary>
+            Builds the structure of the master dictionary.
+            </summary>
+        </member>
+        <member name="T:NUClass.BluetoothDisconnect">
+            <summary>
+            A delegate used to contain functions that occur when a
+            bluetooth device disconnects from the tablet.
+            </summary>
+        </member>
+        <member name="T:NUClass.ConnectionManager">
+            <summary>
+            Main interface of the NUClass project - instantiates other classes and handles event calls from connected GarmentInterface instance.
+            Provides high-level debug information relating to system configuration and compiles final output when an exercise is complete.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.IMU_COUNT">
+            <summary>
+            Statically set amount of IMU devices to be connected.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.DEBUG">
+            <summary>
+            Manualy set boolean for increased debugging output.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.USE_CALIBRATION">
+            <summary>
+            Manually set boolean indicating whether or not to use an existing calibration file.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.END_REPETITION_STRING">
+            <summary>
+            Include a repetition string on the end of the processed CSVs.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.repetition_count">
+            <summary>
+            Amount of repetition events triggered whilst conducting the current exercise.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.disconnect_event">
+            <summary>
+            Disconnect event for triggering interuption of main thread.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.IMU_connected">
+            <summary>
+            Boolean array of whether IMU devices are currently connected.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.IMU_numbers">
+            <summary>
+            Internal list of the unformatted IMU number read from the 'imunames.txt' file.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.IMU_locations">
+            <summary>
+            List of the IMU locations on the garment. Corresponds with the order of the IMU_numbers.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.IMU_connections">
+            <summary>
+            Mapping of IMU numbers to instance of IMUConnection.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.processed_rep_string">
+            <summary>
+            Formatting string added to the processed CSV when a repetition event occurs.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.raw_rep_string">
+            <summary>
+            Formatting string added to the raw CSV when a repetition event occurs
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.raw_data">
+            <summary>
+            List of formatted strings detailing the IMU number and raw integer reads of the IMU devices ready to be written to the raw CSV output.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.processed_data">
+            <summary>
+            List of formatted strings detailing the processed quaternions and MMG readings of the IMU devices ready to be written to the processed CSV output.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.file_location">
+            <summary>
+            Location of the output directory passed from the GarmentInterface.
+            </summary>
+        </member>
+        <member name="P:NUClass.ConnectionManager.device_information">
+            <summary>
+            Report on the Bluetooth version and IMU firmware version of each IMU device connected, compiled at the end of each connect event.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.stream_start">
+            <summary>
+            Time stamp of when the stream starts.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.stream_end">
+            <summary>
+            Time stamp of when stream ends.
+            </summary>
+        </member>
+        <member name="F:NUClass.ConnectionManager.repetitions">
+            <summary>
+            List of the indices when repetion events occurred.
+            </summary>
+        </member>
+        <member name="P:NUClass.ConnectionManager.debug_information">
+            <summary>
+            Report on the connection configuration and attempts produced when making a connection attempt. Details where a connection attempt
+            failed.
+            </summary>
+        </member>
+        <member name="P:NUClass.ConnectionManager.unique_device_numbers">
+            <summary>
+            Are the IMU numbers provided unique?
+            </summary>
+        </member>
+        <member name="P:NUClass.ConnectionManager.valid_names_file">
+            <summary>
+            Does the names file have to correct amount of entries?
+            </summary>
+        </member>
+        <member name="P:NUClass.ConnectionManager.bluetooth_enabled">
+            <summary>
+            Is Bluetooth enabled on this device?
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.#ctor">
+            <summary>
+            Constructor establishes the IMU numbers from the 'imunames.txt' file before validating them. 
+            Checks whether Bluetooth is enabled.
+            If Bluetooth is enabled and a valid list of IMU numbers is provided, begins connection attempts.
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.set_IMU_names">
+            <summary>
+             Attempts to read the 'imunames.txt' file, calls 'validate_names_file' and checks for unique entries.
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.validate_names_file(System.String[])">
+            <summary>
+            Checks IMU_numbers for the right amount of correctly formatted IMU numbers. 
+            </summary>
+            <param name="IMU_numbers"> List of IMU numbers provided by 'imunames.txt'.</param>
+        </member>
+        <member name="M:NUClass.ConnectionManager.check_bluetooth_enabled">
+            <summary>
+            Is Bluetooth enabled on this device?
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.set_connections">
+            <summary>
+            Populates the connections array with a new instance of IMUConnection for each IMU.
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.compile_processed_entry(NUClass.Quaternion[],System.Single[])">
+            <summary>
+            Takes the processed quaternions from all IMU devices and their corresponding MMG reads
+            and formats them ready to be written to the processed CSV file.
+            </summary>
+            <param name="entries">Processed quaternions from each IMU.</param>
+            <param name="MMG_entries">Processed MMG data from each IMU.</param>
+            <returns></returns>
+        </member>
+        <member name="M:NUClass.ConnectionManager.compile_raw_entry(System.Int32[][])">
+            <summary>
+            Takes the raw data input from all IMU devices and formats them ready to be
+            written to the raw CSV file.
+            </summary>
+            <param name="values"></param>
+        </member>
+        <member name="M:NUClass.ConnectionManager.connection_event(NUClass.BluetoothDisconnect)">
+            <summary>
+            Starts parallel threads for each IMU listed in IMU_numbers which attempt to establish a connection to the specified IMU. Updates local connection statuses and debug info. 
+            </summary>
+            <param name="_disconnect_event"> Bluetooth disconnect event</param>
+        </member>
+        <member name="M:NUClass.ConnectionManager.close_connections">
+            <summary>
+            Loops the IMU connections and invokes the call to close the underlying connection.
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.build_debug_report">
+            <summary>
+            Called at the end of each connection event to compile the connection debug report from local
+            variables as well as aggregating from each IMU connection.
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.build_device_report">
+            <summary>
+            Called at the end of each connection event to compile the high-level debug information
+            on the system and its configuration.
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.stream_data(System.String)">
+            <summary>
+            Start streaming event. Removes old data and triggers streaming from each IMU connection. Timestamps the start of streaming.
+            </summary>
+            <param name="output_dir"> The target directory for the processed and raw CSV.</param>
+        </member>
+        <member name="M:NUClass.ConnectionManager.stream_toggle(System.Boolean)">
+            <summary>
+            Method invoked by the start and end streaming events to loop through the IMU connections and toggle their underlying
+            data streams on or off.
+            </summary>
+            <param name="stream_bool"> Whether to open or close the data streams, T-open / F-close.</param>
+        </member>
+        <member name="M:NUClass.ConnectionManager.clear_data">
+            <summary>
+            Resets all the collections and values stored from the previous read when starting a new stream event.
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.get_MMG_readings(System.Single[][])">
+            <summary>
+            Takes the MMG readings from all connected IMUs and extracts the important reads.
+            </summary>
+            <param name="MMG_readings"> Processed MMG reads from each IMU.</param>
+            <returns></returns>
+        </member>
+        <member name="M:NUClass.ConnectionManager.end_event(System.String,System.String,System.String)">
+            <summary>
+            End of exercise event invoked from the GarmentInterface. Pauses the IMU connection streams and determines the path for each file to be output before aggregating 
+            the IMU data, formatting it and then printing it to CSV files.
+            </summary>
+            <param name="patient_num"> Patient number.</param>
+            <param name="task_name"> Exercise being performed.</param>
+            <param name="task_mode"> Left or Right handed attempt.</param>
+            <returns></returns>
+        </member>
+        <member name="M:NUClass.ConnectionManager.aggregate_results">
+            <summary>
+            Collects all the reads from each IMU connections  and restuctures it into formatted strings which are appended
+            to the raw and processed data lists. Also inserts the repetition event strings at the appropriate instances 
+            based on earlier recording of when they occurred.
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.process_reads(System.Object[][],System.Int32)">
+            <summary>
+            Breaks down the data from a data recording from each of the IMU devices.
+            </summary>
+            <param name="reads"> All the data from all the IMUs.</param>
+            <param name="current_index"> Read number.</param>
+        </member>
+        <member name="M:NUClass.ConnectionManager.print_results(System.Collections.Generic.List{System.String},System.String)">
+            <summary>
+            Outputs a list of strings to the desired file path.
+            </summary>
+            <param name="data"> A list of  strings to be written to a file.</param>
+            <param name="path"> Path as to where to output the file.</param>
+        </member>
+        <member name="M:NUClass.ConnectionManager.repetition_event">
+            <summary>
+            Event fired when calling a repetition from the GarmentInterface. Checks the current read count of each
+            IMU device and makes a note of the latest index for the repetition event to occur at.
+            </summary>
+        </member>
+        <member name="M:NUClass.ConnectionManager.disconnection(System.String)">
+            <summary>
+            Invoke the 'disconnection_event' to interupt the main thread if one of the IMUs disconnects.
+            </summary>
+            <param name="IMU_number">IMU number of the IMU device which has disconnected.</param>
+        </member>
+        <member name="T:NUClass.IMUConnection">
+            <summary>
+            Central class for each connected IMU devices. Creates and handles the low-level Bluetooth controller and
+            manages memory relating to Bluetooth MAC address, IMU configuration files and input data reads. Houses the
+            Madgwick algorithm and MMG manipulations to process raw data. 
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.IMU_number">
+            <summary>
+            Unformatted IMU number associated with the connected IMU device.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.calibration">
+            <summary>
+            Memory of and underlying functions relating to read / write of the configuration file.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.processed">
+            <summary>
+            The processed quaternion produced from the latest raw data input.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.bt_manager">
+            <summary>
+            The underlying instance of the Bluetooth manager class.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.connection_manager">
+            <summary>
+            Parent ConnectionManager instance.
+            </summary>        
+        </member>
+        <member name="F:NUClass.IMUConnection.IMU_memory">
+            <summary>
+            Name of the text file which acts as a record of a previously connected IMU device's MAC address.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.step_size">
+            <summary>
+            Scaling factor used when performing gradient descent in the Madgwick algorithm.
+            </summary>
+        </member>
+        <member name="P:NUClass.IMUConnection.raw">
+            <summary>
+            The raw data input from the last read from the IMU stream.
+            </summary>
+        </member>
+        <member name="P:NUClass.IMUConnection.MMG">
+            <summary>
+            The processed IMU data created from the last raw data input.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.debug_connection_reports">
+            <summary>
+            Flag used to indicate whether or not extensive debugging is on.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.client">
+            <summary>
+            Client instance managing Bluetooth connection and stream acquisition.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.MAC_address">
+            <summary>
+            MAC address of the IMU device attempting to be connnected with.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.devices">
+            <summary>
+            All devices discovered in Bluetooth range.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.IMU_device_name">
+            <summary>
+            Formatted IMU string name built from its number.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.records">
+            <summary>
+            A store of all the raw reads and processed data collected.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.use_calibration">
+            <summary>
+            Boolean indicating whether to attempt to read existing calibration files or to create new ones.
+            </summary>
+        </member>
+        <member name="F:NUClass.IMUConnection.connection_information">
+            <summary>
+            Debug report collected from this IMU connection.
+            </summary>
+        </member>
+        <member name="P:NUClass.IMUConnection.conn_info_set">
+            <summary>
+            Has the IMU device data been collected?
+            </summary>
+        </member>
+        <member name="P:NUClass.IMUConnection.device_found">
+            <summary>
+            Has a corresponding device been found over Bluetooth? Will always flag false when using the MAC file.
+            </summary>
+        </member>
+        <member name="P:NUClass.IMUConnection.MAC_file">
+            <summary>
+            Was the connection attempt made using information from an existing record of the correspong MAC address?
+            </summary>
+        </member>
+        <member name="M:NUClass.IMUConnection.#ctor(System.String,NUClass.ConnectionManager,System.Boolean,System.Boolean)">
+            <summary>
+            Sets global variables based on those passed as parameters, creates an instance of the Calibration class and
+            determines the formatted IMU device name and the path to the memory file. Creates a new Bluetooth client and
+            checks for a coressponding MAC file.
+            </summary>
+            <param name="_IMU_number"> The unformatted IMU number.</param>
+            <param name="_connection_manager">Parent ConnectionManager instance.</param>
+            <param name="_debug_connection_reports"> Whether to acquire device connection data.</param>
+            <param name="_use_calibration"> Whether to use calibration file if it exists.</param>
+        </member>
+        <member name="M:NUClass.IMUConnection.Check_MAC_file(System.String)">
+            <summary>
+            Attempts to read MAC file at the path specified if it exists. If not present or the read fails,
+            attempts to discover the device over the local Bluetooth.
+            </summary>
+            <param name="imu_memory"> Path to the IMU's MAC file.</param>
+        </member>
+        <member name="M:NUClass.IMUConnection.load_from_MAC_file(System.Char[])">
+            <summary>
+            Reads in the chars array passed and converts it to a byte array before using this to create a
+            Bluetooth address instance.
+            </summary>
+            <param name="device_MAC_address"> Character array read from the MAC text file.</param>
+            <returns></returns>
+        </member>
+        <member name="M:NUClass.IMUConnection.create_MAC_file">
+            <summary>
+            Writes the MAC file for a device when discovered over Bluetooth saving the address for faster future connection attempts.
+            </summary>
+        </member>
+        <member name="M:NUClass.IMUConnection.check_for_device">
+            <summary>
+            Checks the local Bluetooth devices searching for one with a corresponding name to the formatted
+            IMU name.
+            </summary>
+            <returns>MAC address if found, null if not.</returns>
+        </member>
+        <member name="M:NUClass.IMUConnection.connect">
+            <summary>
+            Creates new record and Bluetooth manager classes before attempting to connect to the IMU device.
+            If an instance of the Bluetooth manager is already in effect, will make a call to dispose of it first.
+            </summary>
+            <returns> Whether the connection attempt to the IMU device was successful.</returns>
+        </member>
+        <member name="M:NUClass.IMUConnection.dispose_previous_connection">
+            <summary>
+            Performs safe termination of the Bluetooth manager's underlying data stream thread, disposes of
+            the associated 32Feet Bluetooth client and then the Bluetooth manager itself.
+            </summary>
+        </member>
+        <member name="M:NUClass.IMUConnection.set_connection_info(System.Int32,System.Int32,System.String)">
+            <summary>
+            Adds the information from the Bluetooth and firmware versions to the connection information dictionary. Sets the fact that 
+            the data has been collected in the 'conn_info_set' boolean.
+            </summary>
+            <param name="major_version"> Major version number of the firmware.</param>
+            <param name="minor_version"> Minor version number of the firmware.</param>
+            <param name="bluetooth_version"> Bluetooth version number.</param>
+        </member>
+        <member name="M:NUClass.IMUConnection.close">
+            <summary>
+            Closes the Bluetooth connection by terminating the associated thread, sending a stop command to the IMU device
+            and closing the underlying Bluetooth connection.
+            </summary>
+        </member>
+        <member name="M:NUClass.IMUConnection.data_read_event(System.Int32[],System.Int64)">
+            <summary>
+            Method invoked by the underlying Bluetooth manager when a data packet is assembled from the stream.
+            Triggers data processing and the addition of both raw and processed values to the records class.
+            </summary>
+            <param name="data"> Raw data input.</param>
+            <param name="read_time">Tick count since stream started.</param>
+        </member>
+        <member name="M:NUClass.IMUConnection.set_stream(System.Boolean)">
+            <summary>
+            Toggles whether the Bluetooth manager should be streaming data.
+            </summary>
+            <param name="stream"> Whether the stream should be open.</param>
+        </member>
+        <member name="M:NUClass.IMUConnection.process_data(System.Int32[])">
+            <summary>
+            Takes the raw input data and invokes the appropriate method to handle its processing depending on whether 
+            the calibration phase is completed. Calls the MMG data processing.
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:NUClass.IMUConnection.integrate_sensor_readings(System.Int32[])">
+            <summary>
+            Integrates the high and low reads from the gyroscope, magnetometer and accelerometer into singular values.
+            </summary>
+            <param name="raw_values"> High and low values from the IMU read.</param>
+            <returns> Integrated gyro, mageto and accel data. </returns>
+        </member>
+        <member name="M:NUClass.IMUConnection.process_MMG(System.Int32[])">
+            <summary>
+            Converts the high/low integer bands of the MMG reads into individual float values.
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:NUClass.IMUConnection.short_ints(System.Int32[])">
+            <summary>
+            Converts the integer raw data values into short values for more accurate processing.
+            </summary>
+            <param name="data"> Raw integer values.</param>
+            <returns></returns>
+        </member>
+        <member name="M:NUClass.IMUConnection.adjust(System.Int16[])">
+            <summary>
+            Gets the memory / calibration of the IMU values after calibration is complete and invokes the 
+            main Madwick algorithm.
+            </summary>
+            <param name="values"> Short values converted from the raw integer values.</param>
+        </member>
+        <member name="M:NUClass.IMUConnection.calibrate(System.Int16[])">
+            <summary>
+            Updates the values saved for the IMU device during the calibration phase. Begins to call the
+            Madgwick algorithm once the threshold has been met.
+            </summary>
+            <param name="values"> Short values converted from the raw integer values.</param>
+        </member>
+        <member name="M:NUClass.IMUConnection.update(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Implementation of the Magdewick algorithm, using IMU data to update orientation Quaternion.
+            </summary>
+            <param name="gx">Gyro X value</param>
+            <param name="gy">Gyro Y value</param>
+            <param name="gz">Gyro Z value</param>
+            <param name="ax">Accel X value</param>
+            <param name="ay">Accel Y value</param>
+            <param name="az">Accel Z value</param>
+            <param name="mx">Mag X value</param>
+            <param name="my">Mag Y value</param>
+            <param name="mz">Mag Z value</param>
+        </member>
+        <member name="M:NUClass.IMUConnection.get_debug_information">
+            <summary>
+            Compiles the connection debug information from this class and the underlying
+            Bluetooth connection manager instance.
+            </summary>
+            <returns> Compiled connection debug dictionary.</returns>
+        </member>
+        <member name="M:NUClass.IMUConnection.get_currrent_index">
+            <summary>
+            Used to determine the current index within the records class when a repetition event occurs.
+            </summary>
+            <returns> Current index.</returns>
+        </member>
+        <member name="M:NUClass.IMUConnection.disconnection">
+            <summary>
+            Disconnection event thrown by underlying Bluetooth manager, inform connection manager.
+            </summary>
+        </member>
+        <member name="T:NUClass.Quaternion">
+            <summary>
+            Internal representation of a quaternion instance.
+            </summary>
+        </member>
+        <member name="F:NUClass.Quaternion.W">
+            <summary>
+            Quaternion W value.
+            </summary>
+        </member>
+        <member name="F:NUClass.Quaternion.X">
+            <summary>
+            Quaternion X value.
+            </summary>
+        </member>
+        <member name="F:NUClass.Quaternion.Y">
+            <summary>
+            Quaternion Y value.
+            </summary>
+        </member>
+        <member name="F:NUClass.Quaternion.Z">
+            <summary>
+            Quaternion Z value.
+            </summary>
+        </member>
+        <member name="M:NUClass.Quaternion.#ctor(System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Constructor which assigns the quaternion values.
+            </summary>
+            <param name="W"> W value.</param>
+            <param name="X"> X value.</param>
+            <param name="Y"> Y value.</param>
+            <param name="Z"> Z value.</param>
+        </member>
+        <member name="M:NUClass.Quaternion.clone">
+            <summary>
+            Creates a new quaternion with the same values as the original.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:NUClass.Quaternion.stringify">
+            <summary>
+            Outputs the quaternion in a manner ready to be included in the processed CSV file.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:NUClass.Records">
+            <summary>
+            Class recording all the raw, processed and MMG readings from an IMU connection.
+            </summary>
+        </member>
+        <member name="F:NUClass.Records.records">
+            <summary>
+            Underlying list to store data.
+            </summary>
+        </member>
+        <member name="F:NUClass.Records.current_index">
+            <summary>
+            Current index within the data list.
+            </summary>
+        </member>
+        <member name="F:NUClass.Records.record_sum">
+            <summary>
+            Total count of records stored.
+            </summary>
+        </member>
+        <member name="F:NUClass.Records.IMU">
+            <summary>
+            IMU number of the associated IMU device.
+            </summary>
+        </member>
+        <member name="M:NUClass.Records.#ctor(System.String)">
+            <summary>
+            Constructs the class, assigning the passed IMU number.
+            </summary>
+            <param name="_IMU"></param>
+        </member>
+        <member name="M:NUClass.Records.add_record(System.Int64,System.Int32[],NUClass.Quaternion,System.Single[])">
+            <summary>
+            Adds an entry as a collection of objects to the underlying records list.
+            </summary>
+            <param name="ticks">Count in ticks from start of streaming until this read was made.</param>
+            <param name="raw"> Integer array representation of the raw input.</param>
+            <param name="processed"> Quaternion produced from the raw input.</param>
+            <param name="MMG"> Processed MMG data from the raw input.</param>
+        </member>
+        <member name="M:NUClass.Records.get_record(System.Int32)">
+            <summary>
+            Get the objects at the specified index from the records list.
+            </summary>
+            <param name="index"> Target index to read.</param>
+            <returns> Object array of raw,processed and MMG data.</returns>
+        </member>
+        <member name="M:NUClass.Records.flush">
+            <summary>
+            Invoked on new exercise attempt, empties the records list and resets the positional variables.
+            </summary>
+        </member>
+    </members>
+</doc>
