@@ -103,6 +103,7 @@ namespace NUClass
         public bool MAC_file { get; private set; } = false;
 
         private int iteration = 0;
+        private int calibration_trigger = 100;
 
         /// <summary>
         /// Sets global variables based on those passed as parameters, creates an instance of the Calibration class and
@@ -290,9 +291,10 @@ namespace NUClass
         public void data_read_event(int[] data, long read_time)
         {
                 process_data(data);
+            //System.Diagnostics.Debug.WriteLine(IMU_number + " - " + iteration);
             //System.Diagnostics.Debug.WriteLine(DateTime.Now);
             //System.Diagnostics.Debug.WriteLine(iteration);
-            if (iteration > 4000)
+            if (iteration > 350)
             {
                 connection_manager.return_quaternion(processed, IMU_number);
             }
@@ -343,7 +345,7 @@ namespace NUClass
             }
             else
             {
-                step_size = 1f;
+                step_size = 0.5f;
                 calibrate(short_values);
             }
             process_MMG(MMG_data);
@@ -435,7 +437,7 @@ namespace NUClass
         public void calibrate(short[] values)
         {
             calibration.countdown--;
-            if (calibration.countdown < 600)
+            if (calibration.countdown < calibration_trigger)
             {
                 calibration.adjust("GYRO", "X", values[0]);
                 calibration.adjust("GYRO", "Y", values[1]);
@@ -451,9 +453,9 @@ namespace NUClass
 
             if (calibration.countdown == 0)
             {
-                calibration.set("GYRO", "X", calibration.get("GYRO", "X") / 600);
-                calibration.set("GYRO", "Y", calibration.get("GYRO", "Y") / 600);
-                calibration.set("GYRO", "Z", calibration.get("GYRO", "Z") / 600);
+                calibration.set("GYRO", "X", calibration.get("GYRO", "X") / calibration_trigger);
+                calibration.set("GYRO", "Y", calibration.get("GYRO", "Y") / calibration_trigger);
+                calibration.set("GYRO", "Z", calibration.get("GYRO", "Z") / calibration_trigger);
                 calibration.set_calibrated(true);
             }
         }

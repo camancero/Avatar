@@ -22,7 +22,7 @@ namespace NUClass
         /// <summary>
         /// variable used to keep track of the interations performed in the calibration stage.
         /// </summary>
-        public int countdown = 1000;
+        public int countdown = 300;
         /// <summary>
         /// Axes used for the magnetometer,accelerometer and gyroscope.
         /// </summary>

@@ -20,6 +20,7 @@ namespace Avatar
         string input_data = @"C:\Users\Nathan\AppData\Local\M-Mark\M-Mark\ExerciseData\Patient - practice-3Reps - 1-Hold phone - Right-2017-09-09T13-21-46.csv";
         public List<Quaternion[]> initial_quaternions = new List<Quaternion[]>();
         private readonly Quaternion offset = new Quaternion(0, 0.7071067811865475, 0.7071067811865476, 0);
+        private Quaternion ninetyx = new Quaternion(0,0.7071,    0.7071,         0);
         ConnectionManager cm = new ConnectionManager();
 
         /// <summary>
@@ -98,6 +99,7 @@ namespace Avatar
         public Quaternion[] orientations = new Quaternion[4];
         public Quaternion[] previous = new Quaternion[4];
         int[] count = {1,1,1,1};
+        int[] ready = { 0, 0, 0, 0 };
 
 
         public MainWindow()
@@ -155,14 +157,14 @@ namespace Avatar
             initalRotationZ.CenterY = torso_centroid[1];
             initalRotationZ.CenterZ = torso_centroid[2];
 
-            componentTransform.Children.Add(initalRotationZ);
+           // componentTransform.Children.Add(initalRotationZ);
 
             RotateTransform3D initalRotationX = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 0, 0), 20));
             initalRotationX.CenterX = torso_centroid[0];
             initalRotationX.CenterY = torso_centroid[1];
             initalRotationX.CenterZ = torso_centroid[2];
 
-            componentTransform.Children.Add(initalRotationX);
+           // componentTransform.Children.Add(initalRotationX);
 
             skeleton.Transform = componentTransform;
 
@@ -193,10 +195,39 @@ namespace Avatar
 
         }
 
+        private Quaternion wrist(Quaternion input)
+        {
+            return new Quaternion(input.Y,-input.X,input.Z,input.W);
+        }
+
+        private Quaternion chest(Quaternion input)
+        {
+            return new Quaternion(input.Y, -input.X, input.Z, input.W);
+        }
+
+        private Quaternion upperarm(Quaternion input)
+        {
+            return new Quaternion(input.Y, -input.X, input.Z, input.W);
+        }
+
+        private Quaternion forearm(Quaternion input)
+        {
+            //return input;
+            Quaternion inv = new Quaternion(-input.X, input.Y, input.Z, input.W);
+            Quaternion n = new Quaternion(new Vector3D(1, 0, 0), 45);
+            return Quaternion.Multiply(n, inv);
+            //return inv;
+            
+        }
+
+
+
         private void OnTimedEvent(object source, EventArgs e)
         {
             Dispatcher.Invoke(() =>
             {
+                //System.Diagnostics.Debug.WriteLine(step);
+                
                 if (step == pdr.quaternions.Count - 1)
                 {
                     animationTimer.Stop();
@@ -210,11 +241,11 @@ namespace Avatar
                     from.Invert();
                     Quaternion delta2 = Quaternion.Multiply(to, from);
                     Quaternion current = cm.current_quaternions[order[x]];
-                    
-                    if (previous[x] == Quaternion.Identity)
+                    //ready[x] = cm.is_ready(order[x]);
+                    if (previous[x] == Quaternion.Identity) //previous[x] == Quaternion.Identity)
                     {
                         animate(Quaternion.Identity, x);
-                        previous[x] = current;
+                        previous[x] = current; // Quaternion.Multiply(offset, current); 
                     } else
                     {
                         if(count[x] == 1)
@@ -226,21 +257,11 @@ namespace Avatar
                         Quaternion last = previous[x];
                         last.Invert();
                         Quaternion delta = Quaternion.Multiply(current, last);
-                        orientations[x] = Quaternion.Multiply(orientations[x], delta);
-                        animate(orientations[x], x);
-                        previous[x] = current;
+                        //orientations[x] = Quaternion.Multiply(orientations[x], delta);
+                        animate(delta, x);
+                        //previous[x] = current;
                     }
-                    //System.Diagnostics.Debug.WriteLine(previous[x]);
-                    //delta2 = Quaternion.Multiply(delta2, offset);
-                    //// dataSample = Quaternion.Multiply(dataSample, offset2);
 
-                    //Quaternion.
-                    /// orientations[x] = delta2; // Quaternion.Multiply(delta,orientations[x]);
-                    //Quaternion delta = Quaternion.Add(initial_frame[x],Quaternion.Subtract(from, to));
-                    //Quaternion delta = Quaternion.Slerp(from, to,1);
-
-                    //System.Diagnostics.Debug.WriteLine(delta.ToString() + " --------- " + to.ToString());
-                    //animate(, x);
                 }
             step++;
             });
@@ -268,7 +289,23 @@ namespace Avatar
             TranslateTransform3D origin_translation = new TranslateTransform3D(new Vector3D(origin.X - original_origin.X, origin.Y - original_origin.Y, origin.Z - original_origin.Z));
             componentTransform.Children.Add(origin_translation);
             }
-            
+            if (x == 3)
+            {
+                quat = wrist(quat) ;
+                //System.Diagnostics.Debug.WriteLine(quat);
+            }
+            if(x == 0)
+            {
+                quat = chest(quat);
+            }
+            if(x == 1)
+            {
+                quat = upperarm(quat);
+            }
+            if(x == 2)
+            {
+                quat = forearm(quat);
+            }
             RotateTransform3D transform = new RotateTransform3D(new QuaternionRotation3D(quat));
 
             // The point of rotation
@@ -288,15 +325,6 @@ namespace Avatar
 
             // Apply transformation
             joint.Transform = componentTransform;
-            if(step == 1)
-            {
-                waist.Transform = componentTransform;
-                m_helix_viewport.Camera.Transform = componentTransform;
-                //m_helix_viewport.Camera.
-            }
-            var u = torso.Transform.Value;
-            var ii = 0;
-
         }
 
         public void connect(object sender, RoutedEventArgs e)
@@ -306,9 +334,10 @@ namespace Avatar
 
         public void stream(object sender, RoutedEventArgs e)
         {
+            System.Threading.Thread.Sleep(5000);
             cm.stream_data("");
             animationTimer = new System.Windows.Threading.DispatcherTimer();
-            animationTimer.Interval = new TimeSpan(200 * 1000);
+            animationTimer.Interval = new TimeSpan(20 * 10000);
             animationTimer.Tick += OnTimedEvent;
             animationTimer.Start();
         }

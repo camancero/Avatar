@@ -540,5 +540,14 @@ namespace NUClass
             IMU_connected[index] = false;
             disconnect_event();
         }
+
+        public int is_ready(int x)
+        {
+            if(IMU_connections[IMU_numbers[x]].calibration.countdown > 0){
+                return 0;
+            }
+            return 1;
+            
+        }
     }
 }
