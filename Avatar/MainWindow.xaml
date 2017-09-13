@@ -14,12 +14,12 @@
                 <TextBlock Text="Start" />
             </StackPanel>
         </Button>
-        <Button Click="connect" Margin="255,0,487,879" Name="connection_button">
+        <Button Click="connect" Name="connection_button" Margin="0,130,589,676.5">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Connect" />
             </StackPanel>
         </Button>
-        <Button Click="stream" Margin="510,0,232,879" x:Name="stream_button">
+        <Button Click="stream" x:Name="stream_button" Margin="621,130,0,676.5">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Stream" />
             </StackPanel>

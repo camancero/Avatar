@@ -174,7 +174,7 @@ namespace Avatar
         
 
             Avatar.DataContext = this;
-            pdr = new ProcessedDataReader(input_data);
+            //pdr = new ProcessedDataReader(input_data);
 
             var x = torso.Transform.Value;
             var y = rightForearm.Transform.Value;
@@ -197,27 +197,71 @@ namespace Avatar
 
         private Quaternion wrist(Quaternion input)
         {
-            return new Quaternion(input.Y,-input.X,input.Z,input.W);
+            Quaternion mani = new Quaternion(-input.Y, input.X, input.Z, input.W);
+            Quaternion rot = Quaternion.Identity;
+            if (input != Quaternion.Identity)
+            {
+                Quaternion rotation_a = new Quaternion(new Vector3D(0, 0, 1), -90);
+                Quaternion rotation_a_conj = rotation_a;
+                rotation_a_conj.Conjugate();
+                rot = Quaternion.Multiply(Quaternion.Multiply(rotation_a, input), rotation_a_conj);
+
+                Quaternion rotation_b = new Quaternion(new Vector3D(0, 0, 1), 180);
+                Quaternion rotation_b_conj = rotation_b;
+                rotation_b_conj.Conjugate();
+                rot = Quaternion.Multiply(Quaternion.Multiply(rotation_b, rot), rotation_b_conj);
+            }
+            System.Diagnostics.Debug.WriteLine(rot + "  ///  " + mani);
+            return rot;
         }
 
         private Quaternion chest(Quaternion input)
         {
-            return new Quaternion(input.Y, -input.X, input.Z, input.W);
+
+            return input;
         }
 
         private Quaternion upperarm(Quaternion input)
         {
-            return new Quaternion(input.Y, -input.X, input.Z, input.W);
+           Quaternion mani =  new Quaternion(-input.Y, input.X, input.Z, input.W);
+            Quaternion rot = Quaternion.Identity;
+            if (input != Quaternion.Identity)
+            {
+                Quaternion rotation_a = new Quaternion(new Vector3D(0, 0, 1), -65);
+                Quaternion rotation_a_conj = rotation_a;
+                rotation_a_conj.Conjugate();
+                rot = Quaternion.Multiply(Quaternion.Multiply(rotation_a, input),rotation_a_conj);
+
+                Quaternion rotation_b = new Quaternion(new Vector3D(0,0, 1), 180);
+                Quaternion rotation_b_conj = rotation_b;
+                rotation_b_conj.Conjugate();
+                rot = Quaternion.Multiply(Quaternion.Multiply(rotation_b, rot),rotation_b_conj);
+            }
+            System.Diagnostics.Debug.WriteLine(rot + "  ///  " + mani);
+            return rot;
         }
 
         private Quaternion forearm(Quaternion input)
         {
-            //return input;
-            Quaternion inv = new Quaternion(-input.X, input.Y, input.Z, input.W);
-            Quaternion n = new Quaternion(new Vector3D(1, 0, 0), 45);
-            return Quaternion.Multiply(n, inv);
-            //return inv;
-            
+            Quaternion mani = new Quaternion(-input.Y, input.X, input.Z, input.W);
+            Quaternion rot = Quaternion.Identity;
+            if (input != Quaternion.Identity)
+            {
+                Quaternion rotation_a = new Quaternion(new Vector3D(0, 0, 1), -65);
+                Quaternion rotation_a_conj = rotation_a;
+                rotation_a_conj.Conjugate();
+                rot = Quaternion.Multiply(Quaternion.Multiply(rotation_a, input), rotation_a_conj);
+
+                Quaternion rotation_b = new Quaternion(new Vector3D(0, 0, 1), 180);
+                Quaternion rotation_b_conj = rotation_b;
+                rotation_b_conj.Conjugate();
+                rot = Quaternion.Multiply(Quaternion.Multiply(rotation_b, rot), rotation_b_conj);
+            }
+            System.Diagnostics.Debug.WriteLine(rot + "  ///  " + mani);
+            return rot;
+
+
+
         }
 
 
@@ -227,19 +271,22 @@ namespace Avatar
             Dispatcher.Invoke(() =>
             {
                 //System.Diagnostics.Debug.WriteLine(step);
-                
+                /*
                 if (step == pdr.quaternions.Count - 1)
                 {
                     animationTimer.Stop();
                     return;
                 }
+                */
                 int[] order = {2,0,1,3 };
             for (var x = 0; x < 4; x++) {
+                    /*
                 Quaternion from = pdr.initial_quaternions[order[x]]; 
                 Quaternion to = pdr.quaternions[step + 1][order[x]];
                // Quaternion delta = Quaternion.Subtract(to, from);
                     from.Invert();
                     Quaternion delta2 = Quaternion.Multiply(to, from);
+                    */
                     Quaternion current = cm.current_quaternions[order[x]];
                     //ready[x] = cm.is_ready(order[x]);
                     if (previous[x] == Quaternion.Identity) //previous[x] == Quaternion.Identity)

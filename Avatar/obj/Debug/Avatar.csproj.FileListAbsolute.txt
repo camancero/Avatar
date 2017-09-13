@@ -28,3 +28,4 @@ C:\Users\Nathan\Dev\Imperial\IMU\Avatar\Avatar\bin\Debug\InTheHand.Net.Personal.
 C:\Users\Nathan\Dev\Imperial\IMU\Avatar\Avatar\bin\Debug\NUClass.pdb
 C:\Users\Nathan\Dev\Imperial\IMU\Avatar\Avatar\bin\Debug\NUClass.dll.config
 C:\Users\Nathan\Dev\Imperial\IMU\Avatar\Avatar\bin\Debug\InTheHand.Net.Personal.xml
+C:\Users\Nathan\Dev\Imperial\IMU\Avatar\Avatar\obj\Debug\Avatar.csproj.CoreCompileInputs.cache
