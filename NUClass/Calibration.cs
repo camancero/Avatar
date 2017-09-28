@@ -46,7 +46,7 @@ namespace NUClass
         /// <summary>
         /// Whether the configuration file is valid.
         /// </summary>
-        public bool valid_config_file { get; private set; } = true;
+        public bool valid_config_file { get; private set; } = false;
 
         /// <summary>
         /// Constructs the Calibration class, passing the associated IMU number and parent IMUConnection instance.
@@ -61,7 +61,7 @@ namespace NUClass
             IMU_connection = _IMU_connection;
             bool use_calibration = IMU_connection.use_calibration;
 
-            path += "default.csv"; //MMark.Info.MMarkInfo.MMarkResources + "IMU_Memory\\MagCali\\" + IMU_number + ".txt";
+            path += @"C:\Users\Nathan\Dev\Imperial\IMU\Avatar\NUClass\calibrationFiles" + IMU_number + ".txt" ; //MMark.Info.MMarkInfo.MMarkResources + "IMU_Memory\\MagCali\\" + IMU_number + ".txt";
 
             if (File.Exists(path) && use_calibration)
             {
@@ -83,6 +83,7 @@ namespace NUClass
                     valid_config_file = false;
                 }
             }
+            System.Diagnostics.Debug.WriteLine(valid_config_file);
         }
 
         /// <summary>

@@ -103,7 +103,7 @@ namespace NUClass
         public bool MAC_file { get; private set; } = false;
 
         private int iteration = 0;
-        private int calibration_trigger = 100;
+        private int calibration_trigger = 300;
 
         /// <summary>
         /// Sets global variables based on those passed as parameters, creates an instance of the Calibration class and
