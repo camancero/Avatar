@@ -6,9 +6,6 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using NUClass;
-using hello;
-using MathWorks.MATLAB.NET.Arrays;
-using MathWorks.MATLAB.NET.Utility;
 using System.Linq;
 
 namespace Avatar
@@ -18,7 +15,7 @@ namespace Avatar
     /// </summary>
     public partial class MainWindow : Window
     {
-        string components_dir = "C:\\Users\\Nathan\\AppData\\Local/M-Mark/M-Mark/AvatarComponents/";
+        string components_dir = Directory.GetCurrentDirectory() + @"/Resources/AvatarComponents/";
         //string input_data = @"C:\Users\Nathan\Dev\Imperial\IMU\IMU_visualisation\90_chest.csv";
         string input_data = @"C:\Users\Nathan\AppData\Local\M-Mark\M-Mark\ExerciseData\Patient - practice-3Reps - 1-Hold phone - Right-2017-09-09T13-21-46.csv";
         public List<Quaternion[]> initial_quaternions = new List<Quaternion[]>();
@@ -137,6 +134,18 @@ namespace Avatar
 
 
             Avatar.DataContext = this;
+            Quaternion Q1 = new Quaternion(0.1, 0.6, 0.1, 0.2);
+            Quaternion Q2 = new Quaternion(0.3, 0.4, 0.1, 0.2);
+            Quaternion z = Quaternion.Add(Q1, Q2);
+            Quaternion Q1i = Q1; // new Quaternion(Q1.X, Q1.Y, Q1.Z, Q1.W);
+            Q1i.Conjugate();
+            Quaternion Q1i2 = Q1;
+            Q1i2.Invert();
+            double M = Math.Abs(Q1.X + Q1.Y + Q1.Z);
+            Quaternion X = new Quaternion(Q1i.X / M, Q1i.Y / M, Q1i.Z / M, Q1i.W / M);
+            Quaternion dif = Quaternion.Multiply(Q2, Q1i);
+            Quaternion ans = Quaternion.Multiply(Q1, dif);
+
             //pdr = new ProcessedDataReader(input_data);
 
         }
@@ -249,8 +258,8 @@ namespace Avatar
                             if(count[x] == 1)
                             {
                                 Quaternion chest_ref = reference[0];
-                                chest_ref.Invert();
-                                offsets[x] =  Quaternion.Multiply(reference[0], chest_ref); 
+                                chest_ref.Conjugate();
+                                offsets[x] =  Quaternion.Multiply(reference[x], chest_ref); 
                                 if(x == 0)
                                 {
                                     //offsets[x] = Quaternion.Identity;
